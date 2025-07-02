@@ -8,34 +8,35 @@ public class BallSpawner : MonoBehaviour
     private Grabbable grabbable;
     private bool hasSpawned = false;
 
-    private void Awake()
+    void Awake()
     {
         grabbable = GetComponent<Grabbable>();
     }
 
-    private void OnEnable()
+    void OnEnable()
     {
-        if (grabbable != null)
-        {
-            grabbable.WhenPointerEventRaised += OnGrabEvent;
-        }
+        grabbable.WhenPointerEventRaised += OnGrabEvent;
     }
 
-    private void OnDisable()
+    void OnDisable()
     {
-        if (grabbable != null)
-        {
-            grabbable.WhenPointerEventRaised -= OnGrabEvent;
-        }
+        grabbable.WhenPointerEventRaised -= OnGrabEvent;
     }
 
-    private void OnGrabEvent(PointerEvent pointerEvent)
+    private void OnGrabEvent(PointerEvent evt)
     {
-        if (!hasSpawned && pointerEvent.Type == PointerEventType.Select)
+        if (evt.Type == PointerEventType.Select && !hasSpawned)
         {
             hasSpawned = true;
 
-            Instantiate(ballPrefab, transform.position, transform.rotation);
+            GameObject newBall = Instantiate(ballPrefab, transform.position, transform.rotation);
+            Debug.Log($"Spawned new ball: {newBall.name}");
+
+            if (!newBall.TryGetComponent(out MetaGrabListener _))
+                Debug.LogWarning("New ball is missing MetaGrabListener!");
+
+            if (!newBall.TryGetComponent(out ShowOnMetaGrab _))
+                Debug.LogWarning("New ball is missing ShowOnMetaGrab!");
         }
     }
 }

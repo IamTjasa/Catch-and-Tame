@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blockId: 3f1827c2-c682-46d8-999e-0954e37e833e
-  instanceId: e99a85c6-a127-4f99-93a4-d52ef7f43d32
+  instanceId: 8c04db10-ffc9-4eb1-9f36-aabbb51b7994
   version: 1
   installationRoutineCheckpoint:
     _installationRoutineId: 20b9ad69-c205-488d-a6b2-d3d7ca6c1e53
@@ -203,6 +203,9 @@ GameObject:
   - component: {fileID: 8312365272946252181}
   - component: {fileID: 4507173977393872591}
   - component: {fileID: 8884432432950325167}
+  - component: {fileID: 1665957954421803616}
+  - component: {fileID: 8734320070568556098}
+  - component: {fileID: 8450348530159770707}
   m_Layer: 0
   m_Name: '[BuildingBlock] Grab Distance Lik 1'
   m_TagString: Untagged
@@ -218,7 +221,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7111199179637346462}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
@@ -239,7 +242,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blockId: 7358e191-33b7-43ca-b066-b2f00531ac66
-  instanceId: 17362740-a749-4a1a-9167-5fd44387dd87
+  instanceId: 3b7eb318-2ffa-4be4-ab66-567b80e987fa
   version: 1
   installationRoutineCheckpoint:
     _installationRoutineId: 
@@ -309,7 +312,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -338,7 +341,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -388,7 +391,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61bf5060b209e7442b02a81f19ed2ee8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showScript: {fileID: 8312365272946252181}
 --- !u!114 &8884432432950325167
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -402,3 +404,41 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballPrefab: {fileID: 7111199179637346462}
+--- !u!114 &1665957954421803616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7111199179637346462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf3ec16be38392d449257619686db1fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bounceForce: 5
+  torqueAmount: 10
+--- !u!114 &8734320070568556098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7111199179637346462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c8e92024fce69d4089130829f23f80c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8450348530159770707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7111199179637346462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1b6588706a2955409d0c8c69b3729f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
