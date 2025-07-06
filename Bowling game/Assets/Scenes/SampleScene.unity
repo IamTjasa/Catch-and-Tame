@@ -15011,10 +15011,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   minDistance: 2
-  maxDistance: 6
+  maxDistance: 5
   minSpawnDelay: 5
   maxSpawnDelay: 10
-  resourcesFolder: Prefabs
+  resourcesFolder: Animals
 --- !u!1 &1598497856
 GameObject:
   m_ObjectHideFlags: 0

@@ -12,10 +12,11 @@ public class AnimalSpawner : MonoBehaviour
     public float minSpawnDelay = 5f;
     public float maxSpawnDelay = 10f;
 
-    [Header("Resources/Prefabs Folder")]
-    public string resourcesFolder = "Prefabs";
+    [Header("Resources/Animals Folder")]
+    public string resourcesFolder = "Animals";
 
     private List<GameObject> animalPrefabs = new List<GameObject>();
+    private GameObject currentAnimal;
 
     void Start()
     {
@@ -48,7 +49,7 @@ public class AnimalSpawner : MonoBehaviour
             Debug.Log("Waiting " + waitTime + " seconds to spawn...");
             yield return new WaitForSeconds(waitTime);
 
-            if (GameObject.FindGameObjectWithTag("Animal") != null)
+            if (currentAnimal != null)
             {
                 Debug.Log("Animal already exists, skipping spawn.");
                 continue;
@@ -71,7 +72,13 @@ public class AnimalSpawner : MonoBehaviour
         Vector2 randomCircle = Random.insideUnitCircle.normalized * Random.Range(minDistance, maxDistance);
         Vector3 spawnPos = new Vector3(randomCircle.x, 0f, randomCircle.y);
 
-        GameObject spawnedAnimal = Instantiate(randomAnimal, spawnPos, Quaternion.identity);
-        Debug.Log("Spawned animal: " + spawnedAnimal.name + " at position: " + spawnPos);
+        Vector3 lookTarget = Vector3.zero;
+        Vector3 directionToCenter = (lookTarget - spawnPos).normalized;
+        Quaternion lookRotation = Quaternion.LookRotation(directionToCenter, Vector3.up);
+
+        currentAnimal = Instantiate(randomAnimal, spawnPos, lookRotation);
+        currentAnimal.tag = "Animal";
+
+        Debug.Log("Spawned animal: " + currentAnimal.name + " at position: " + spawnPos);
     }
 }

@@ -8,6 +8,7 @@ public class BallStartSpawner : MonoBehaviour
     public float verticalOffset = 0.15f;
 
     private bool firstBallSpawned = false;
+    private GameObject currentBall;
 
     void Start()
     {
@@ -16,7 +17,7 @@ public class BallStartSpawner : MonoBehaviour
 
     void Update()
     {
-        if (firstBallSpawned && GameObject.FindWithTag("Ball") == null)
+        if (firstBallSpawned && currentBall == null)
         {
             SpawnBall();
         }
@@ -26,7 +27,7 @@ public class BallStartSpawner : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
 
-        if (GameObject.FindWithTag("Ball") == null)
+        if (currentBall == null)
         {
             SpawnBall();
             firstBallSpawned = true;
@@ -38,7 +39,9 @@ public class BallStartSpawner : MonoBehaviour
         Vector3 spawnPos = handSpawnPoint.position + handSpawnPoint.up * verticalOffset;
         Quaternion spawnRot = handSpawnPoint.rotation;
 
-        GameObject ball = Instantiate(ballPrefab, spawnPos, spawnRot, handSpawnPoint);
-        ball.tag = "Ball";
+        currentBall = Instantiate(ballPrefab, spawnPos, spawnRot, handSpawnPoint);
+        currentBall.tag = "Ball";
+
+        Debug.Log("Ball spawned at: " + spawnPos);
     }
 }
