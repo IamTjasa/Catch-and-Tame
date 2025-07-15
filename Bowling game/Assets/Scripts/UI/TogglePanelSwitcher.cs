@@ -9,11 +9,9 @@ public class TogglePanelSwitcher : MonoBehaviour
 
     void Start()
     {
-        // Nastavi zaèetno stanje
         ballPanel.SetActive(true);
         indexPanel.SetActive(false);
 
-        // Dodaj listener na gumb
         Button button = GetComponent<Button>();
         if (button != null)
         {

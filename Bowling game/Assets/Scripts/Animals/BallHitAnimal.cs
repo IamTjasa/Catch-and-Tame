@@ -1,35 +1,51 @@
 using UnityEngine;
+using System.Collections;
 
 public class BallHitAnimal : MonoBehaviour
 {
+    private AudioClip capturedSound;
+
+    public GameObject floatingTextPrefab; 
+
+    void Start()
+    {
+        capturedSound = Resources.Load<AudioClip>("Sounds/Captured");
+    }
+
     void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("Ball collided with: " + collision.gameObject.name);
-
         if (collision.gameObject.CompareTag("Animal"))
         {
-            float chance = Random.value; 
-            Debug.Log("Chance roll: " + chance);
+            float chance = Random.value;
 
             if (chance < 0.5f)
             {
-                Debug.Log("Animal caught! Destroying.");
-                Destroy(collision.gameObject);
+                StartCoroutine(PlayCapturedSoundAndDestroy(collision.gameObject));
             }
             else
             {
-                Debug.Log("Animal escaped! Playing reaction animation.");
-
                 AnimalReaction reaction = collision.gameObject.GetComponent<AnimalReaction>();
-                if (reaction != null)
-                {
-                    reaction.PlayReaction();
-                }
-                else
-                {
-                    Debug.LogWarning("AnimalReaction script missing on: " + collision.gameObject.name);
-                }
+                if (reaction != null) reaction.PlayReaction();
             }
         }
+    }
+
+    IEnumerator PlayCapturedSoundAndDestroy(GameObject animal)
+    {
+        GameObject soundObj = new GameObject("CapturedSoundPlayer");
+        AudioSource audioSource = soundObj.AddComponent<AudioSource>();
+        audioSource.clip = capturedSound;
+        audioSource.Play();
+
+        if (floatingTextPrefab != null)
+        {
+            Vector3 spawnPos = animal.transform.position + Vector3.up * 1.5f;
+            FloatingTextSpawner.SpawnFloatingText(floatingTextPrefab, spawnPos, 1f);
+        }
+
+        yield return new WaitForSeconds(capturedSound.length);
+
+        Destroy(animal);
+        Destroy(soundObj);
     }
 }
