@@ -1,11 +1,12 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class BallHitAnimal : MonoBehaviour
 {
     private AudioClip capturedSound;
 
-    public GameObject floatingTextPrefab; 
+    public GameObject floatingTextPrefab;
 
     void Start()
     {
@@ -43,9 +44,33 @@ public class BallHitAnimal : MonoBehaviour
             FloatingTextSpawner.SpawnFloatingText(floatingTextPrefab, spawnPos, 1f);
         }
 
+        string animalName = animal.name.Replace("(Clone)", "").Trim();
+        ReplaceAnimalImage(animalName);
+
         yield return new WaitForSeconds(capturedSound.length);
 
         Destroy(animal);
         Destroy(soundObj);
+    }
+
+    void ReplaceAnimalImage(string animalName)
+    {
+        GameObject canvasObj = GameObject.Find("MainAnimalCanvas");
+        if (canvasObj == null) return;
+
+        Transform panel = canvasObj.transform.Find("Panel");
+        if (panel == null) return;
+
+        string imageObjectName = "Image" + animalName;
+        Transform imageTransform = panel.Find(imageObjectName);
+        if (imageTransform == null) return;
+
+        Image imageComponent = imageTransform.GetComponent<Image>();
+        if (imageComponent == null) return;
+
+        Sprite newSprite = Resources.Load<Sprite>("AnimalImages/" + animalName);
+        if (newSprite == null) return;
+
+        imageComponent.sprite = newSprite;
     }
 }
