@@ -1320,6 +1320,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 989031728}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &113478605
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 113478607}
+  - component: {fileID: 113478606}
+  m_Layer: 0
+  m_Name: UIManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &113478606
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 113478605}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c652c12253a5ad4eabbf97a590b9352, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panel: {fileID: 813798261}
+  animalImages:
+  - {fileID: 1988148993}
+  - {fileID: 467828538}
+  - {fileID: 1975647813}
+--- !u!4 &113478607
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 113478605}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.23231147, y: 0.40056095, z: 0.7545841}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &114838335
 GameObject:
   m_ObjectHideFlags: 0
@@ -2084,6 +2133,8 @@ MonoBehaviour:
     type: 3}
   handSpawnPoint: {fileID: 1390552162}
   verticalOffset: 0.15
+  scoringCanvas: {fileID: 0}
+  uiManager: {fileID: 113478606}
 --- !u!4 &222938789
 Transform:
   m_ObjectHideFlags: 0
@@ -15795,8 +15846,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29a04fd5fcc97b84fbce0bb578afc859, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minDistance: 2
-  maxDistance: 5
+  minDistance: 0.5
+  maxDistance: 1
   minSpawnDelay: 5
   maxSpawnDelay: 10
   resourcesFolder: Animals
@@ -19405,3 +19456,4 @@ SceneRoots:
   - {fileID: 684255599}
   - {fileID: 1254641858}
   - {fileID: 1445076163}
+  - {fileID: 113478607}

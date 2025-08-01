@@ -7,6 +7,9 @@ public class BallHitAnimal : MonoBehaviour
     private AudioClip capturedSound;
 
     public GameObject floatingTextPrefab;
+    private Canvas progressCanvas;
+
+    public AnimalUIManager uiManager;
 
     void Start()
     {
@@ -29,6 +32,12 @@ public class BallHitAnimal : MonoBehaviour
                 if (reaction != null) reaction.PlayReaction();
             }
         }
+    }
+
+    public void Initialize(Canvas scoringCanvas, AnimalUIManager manager)
+    {
+        progressCanvas = scoringCanvas;
+        uiManager = manager;
     }
 
     IEnumerator PlayCapturedSoundAndDestroy(GameObject animal)
@@ -55,22 +64,15 @@ public class BallHitAnimal : MonoBehaviour
 
     void ReplaceAnimalImage(string animalName)
     {
-        GameObject canvasObj = GameObject.Find("MainAnimalCanvas");
-        if (canvasObj == null) return;
-
-        Transform panel = canvasObj.transform.Find("Panel");
-        if (panel == null) return;
-
-        string imageObjectName = "Image" + animalName;
-        Transform imageTransform = panel.Find(imageObjectName);
-        if (imageTransform == null) return;
-
-        Image imageComponent = imageTransform.GetComponent<Image>();
-        if (imageComponent == null) return;
-
-        Sprite newSprite = Resources.Load<Sprite>("AnimalImages/" + animalName);
-        if (newSprite == null) return;
-
-        imageComponent.sprite = newSprite;
+        Debug.Log("Calling ReplaceAnimalImage with: " + animalName);
+        if (uiManager != null)
+        {
+            uiManager.ReplaceAnimalImage(animalName);
+        }
+        else
+        {
+            Debug.LogWarning("UIManager ni nastavljen!");
+        }
     }
+
 }

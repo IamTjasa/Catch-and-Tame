@@ -7,6 +7,9 @@ public class BallStartSpawner : MonoBehaviour
     public Transform handSpawnPoint;
     public float verticalOffset = 0.15f;
 
+    public Canvas scoringCanvas; 
+    public AnimalUIManager uiManager; 
+
     private bool firstBallSpawned = false;
     private GameObject currentBall;
 
@@ -41,6 +44,12 @@ public class BallStartSpawner : MonoBehaviour
 
         currentBall = Instantiate(ballPrefab, spawnPos, spawnRot, handSpawnPoint);
         currentBall.tag = "Ball";
+
+        var manager = currentBall.GetComponent<BallHitAnimal>();
+        if (manager != null)
+        {
+            manager.Initialize(scoringCanvas, uiManager);
+        }
 
         Debug.Log("Ball spawned at: " + spawnPos);
     }
