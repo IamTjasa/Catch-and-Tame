@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 0
     path: "Assets/Samples/Meta XR Interaction \u200BSDK/77.0.0/Feature Scenes/HandGrab.unity"
     guid: 1ca1035b12c67f24d81e7bc5ad627d76
+  - enabled: 1
+    path: Assets/Scenes/Playground.unity
+    guid: 0623bfdcdf7342445bedb8501c9c44c5
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: fd40bd012149c1644878a1448e7c6d6c,
       type: 2}
