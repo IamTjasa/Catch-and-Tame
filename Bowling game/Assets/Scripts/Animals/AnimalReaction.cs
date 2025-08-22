@@ -17,10 +17,10 @@ public class AnimalReaction : MonoBehaviour
     public string jumpTrigger = "Jump";
 
     [Header("Timing & priority")]
-    public float dodgeDominanceTime = 0.5f; // po Dodge blokiramo druge
-    public float jumpDominanceTime = 0.3f; // po Jump blokiramo Lay kratek èas
-    public float layCooldown = 5f;   // 5 s cooldown za Lay
-    public float jumpCooldown = 1.5f; // cooldown za Jump
+    public float dodgeDominanceTime = 0.5f; 
+    public float jumpDominanceTime = 0.3f; 
+    public float layCooldown = 5f;  
+    public float jumpCooldown = 1.5f; 
 
     private Animator animator;
     private AudioSource audioSource;
@@ -33,7 +33,7 @@ public class AnimalReaction : MonoBehaviour
     private float lastDodgeTime = -999f;
     private float lastJumpTime = -999f;
 
-    // “Zaklepi” Lay za èas po drugih animacijah
+    
     private float layLockedUntil = 0f;
 
     void Awake()
@@ -41,23 +41,23 @@ public class AnimalReaction : MonoBehaviour
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
 
-        // Optional – èe clipi ne obstajajo, bo tiho
+        
         dodgeSfx = Resources.Load<AudioClip>("Sounds/dodge");
         laySfx = Resources.Load<AudioClip>("Sounds/lay");
         jumpSfx = Resources.Load<AudioClip>("Sounds/jump");
     }
 
-    // ====== DODGE (najvišja prioriteta) ======
+    
     public void PlayReaction()
     {
         if (!animator) return;
 
         lastDodgeTime = Time.time;
 
-        // po Dodge malo èasa ignoriramo Lay & Jump
+        
         layLockedUntil = Mathf.Max(layLockedUntil, Time.time + dodgeDominanceTime);
 
-        // resetiraj ostale triggere
+        
         ResetTriggerSafe(layTrigger);
         ResetTriggerSafe(jumpTrigger);
 
@@ -65,18 +65,18 @@ public class AnimalReaction : MonoBehaviour
         PlaySfx(dodgeSfx);
     }
 
-    // ====== LAY (najnižja prioriteta + cooldown) ======
+   
     public void PlayReactionLay()
     {
         if (!animator) return;
 
-        // zaklenjen po Dodge ali Jump
+        
         if (Time.time < layLockedUntil) return;
 
-        // cooldown
+        
         if (Time.time - lastLayTime < layCooldown) return;
 
-        // ne proži, èe je (ali gre) v Dodge ali Jump
+        
         if (IsPlayingOrTransitioningToAny(animator, layerIndex, dodgeState, jumpState))
             return;
 
@@ -87,22 +87,22 @@ public class AnimalReaction : MonoBehaviour
         }
     }
 
-    // ====== JUMP (srednja prioriteta + svoj cooldown) ======
+    
     public void PlayReactionJump()
     {
         if (!animator) return;
 
-        // ne prekini Dodge
+        
         if (IsPlayingOrTransitioningToAny(animator, layerIndex, dodgeState))
             return;
 
-        // cooldown
+        
         if (Time.time - lastJumpTime < jumpCooldown) return;
 
-        // po Jumpu na kratko zakleni Lay (da se ne “zabije” takoj za njim)
+        
         layLockedUntil = Mathf.Max(layLockedUntil, Time.time + jumpDominanceTime);
 
-        // resetiraj Lay trigger (èe bi bil pending)
+        
         ResetTriggerSafe(layTrigger);
 
         if (CrossfadeOrTrigger(jumpState, jumpTrigger))
@@ -112,7 +112,7 @@ public class AnimalReaction : MonoBehaviour
         }
     }
 
-    // ---------- Helpers ----------
+    
     private void PlaySfx(AudioClip clip)
     {
         if (clip != null && audioSource != null)
@@ -125,10 +125,6 @@ public class AnimalReaction : MonoBehaviour
             animator.ResetTrigger(triggerName);
     }
 
-    /// <summary>
-    /// Prednostno: èe obstaja state -> CrossFade, sicer trigger (èe obstaja).
-    /// Vrne true, èe je kaj sprožilo.
-    /// </summary>
     private bool CrossfadeOrTrigger(string stateName, string triggerName)
     {
         int hash = Animator.StringToHash(stateName);
@@ -145,7 +141,7 @@ public class AnimalReaction : MonoBehaviour
             animator.SetTrigger(triggerName);
             return true;
         }
-        return false; // niè poimenovanega tako – tiho preskoèi
+        return false; 
     }
 
     private static bool HasParameter(Animator anim, string name, AnimatorControllerParameterType type)

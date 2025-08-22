@@ -4,14 +4,14 @@ using UnityEngine;
 public class OpenPalmSingleOVR : MonoBehaviour
 {
     [Header("Meta hand")]
-    public OVRHand hand;                 // OVRHand (Left ali Right)
+    public OVRHand hand;                
 
     [Header("Primary target (optional)")]
-    public AnimalReaction target;        // pusti prazno -> auto-find
+    public AnimalReaction target;       
 
     [Header("Fallback animator (èe target ni prisoten)")]
-    public Animator animator;            // dodeli Animator od živali (èe target ni)
-    public string playStateName = "Lay"; // ime stanja v Animatorju
+    public Animator animator;          
+    public string playStateName = "Lay"; 
     public float crossfade = 0.1f;
 
     [Header("Auto-find nastavitve")]
@@ -19,8 +19,8 @@ public class OpenPalmSingleOVR : MonoBehaviour
     [SerializeField] float refetchEvery = 0.5f;
 
     [Header("Gesture tuning")]
-    [Range(0f, 1f)] public float pinchMax = 0.15f;  // vsi prsti < threshold => odprta dlan
-    public float minInterval = 0.25f;               // min èas med sprožitvami
+    [Range(0f, 1f)] public float pinchMax = 0.15f;  
+    public float minInterval = 0.25f;               
 
     bool wasOpen;
     float lastFire, nextRefetch;
@@ -28,12 +28,12 @@ public class OpenPalmSingleOVR : MonoBehaviour
     IEnumerator Start()
     {
         if (!hand) hand = GetComponentInChildren<OVRHand>();
-        yield return null; // poèakaj init
+        yield return null;
 
-        // Najprej poskusi najti AnimalReaction
+        
         if (!target && autoFindTarget) target = FindObjectOfType<AnimalReaction>();
 
-        // Èe ga ni, poskusi najti Animator na živali
+        
         if (!target && !animator && autoFindTarget)
         {
             var liveAnimal = FindObjectOfType<Animator>();
@@ -45,7 +45,7 @@ public class OpenPalmSingleOVR : MonoBehaviour
     {
         if (!hand) return;
 
-        // obèasno ponovno poišèemo tarèo
+        
         if (autoFindTarget && Time.time >= nextRefetch)
         {
             nextRefetch = Time.time + refetchEvery;
@@ -57,7 +57,7 @@ public class OpenPalmSingleOVR : MonoBehaviour
                 animator = FindObjectOfType<Animator>();
         }
 
-        // zahtevaj zanesljiv tracking
+        
         if (hand.HandConfidence != OVRHand.TrackingConfidence.High) return;
 
         bool open =
@@ -67,7 +67,7 @@ public class OpenPalmSingleOVR : MonoBehaviour
             hand.GetFingerPinchStrength(OVRHand.HandFinger.Ring) < pinchMax &&
             hand.GetFingerPinchStrength(OVRHand.HandFinger.Pinky) < pinchMax;
 
-        // proži samo na prehod "zaprt -> odprt"
+        
         if (open && !wasOpen && Time.time - lastFire >= minInterval)
         {
             lastFire = Time.time;
@@ -81,14 +81,14 @@ public class OpenPalmSingleOVR : MonoBehaviour
     {
         if (target)
         {
-            // obstojeèe vedenje – ne spreminjamo AnimalReaction
+            
             target.PlayReactionLay();
             return;
         }
 
         if (animator)
         {
-            // zaigraj stanje po imenu (potreben state "Lay" v Animatorju)
+           
             animator.CrossFadeInFixedTime(playStateName, crossfade, 0, 0f);
             return;
         }

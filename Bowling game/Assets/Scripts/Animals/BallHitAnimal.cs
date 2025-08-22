@@ -24,6 +24,9 @@ public class BallHitAnimal : MonoBehaviour
 
             if (chance < 0.5f)
             {
+                string kind = DetectAnimalKind(collision.gameObject);
+                QuestEvents.AnimalCaught(kind);
+
                 StartCoroutine(PlayCapturedSoundAndDestroy(collision.gameObject));
             }
             else
@@ -56,7 +59,10 @@ public class BallHitAnimal : MonoBehaviour
         string animalName = animal.name.Replace("(Clone)", "").Trim();
         ReplaceAnimalImage(animalName);
 
-        yield return new WaitForSeconds(capturedSound.length);
+        if (capturedSound != null)
+            yield return new WaitForSeconds(capturedSound.length);
+        else
+            yield return null;
 
         Destroy(animal);
         Destroy(soundObj);
@@ -75,4 +81,16 @@ public class BallHitAnimal : MonoBehaviour
         }
     }
 
+    string DetectAnimalKind(GameObject animal)
+    {
+        
+        string n = animal.name.Replace("(Clone)", "").Trim();
+
+        if (n.IndexOf("Cat", System.StringComparison.OrdinalIgnoreCase) >= 0) return "Cat";
+        if (n.IndexOf("Dog", System.StringComparison.OrdinalIgnoreCase) >= 0) return "Dog";
+        if (n.IndexOf("Dragon", System.StringComparison.OrdinalIgnoreCase) >= 0) return "Dragon";
+
+       
+        return "Animal";
+    }
 }

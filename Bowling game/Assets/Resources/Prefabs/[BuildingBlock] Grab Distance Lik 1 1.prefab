@@ -207,7 +207,7 @@ GameObject:
   - component: {fileID: 8051834919800887936}
   - component: {fileID: 5020535053027134919}
   - component: {fileID: -8277434120729701128}
-  - component: {fileID: 9092582334279174437}
+  - component: {fileID: 3085913946035367535}
   m_Layer: 0
   m_Name: '[BuildingBlock] Grab Distance Lik 1 1'
   m_TagString: Ball
@@ -644,7 +644,7 @@ MonoBehaviour:
   _ghostProvider: {fileID: 0}
   _handGhostProvider: {fileID: 11400000, guid: 9b9df4f150839de48af887d742aabf53, type: 2}
   _ovrOffsetMode: 0
---- !u!114 &9092582334279174437
+--- !u!114 &3085913946035367535
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -653,11 +653,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 5000919196264250165}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 757468c9dedf80b4a89e7f8b370524a0, type: 3}
+  m_Script: {fileID: 11500000, guid: d6e783b7b7c49794c823b24696eaff5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  heldParentNameContains: Hand
-  tailAfterRelease: 1.5
+  speedThreshold: 1.5
+  armGraceTime: 0.15
 --- !u!1 &7908191854165170468
 GameObject:
   m_ObjectHideFlags: 0

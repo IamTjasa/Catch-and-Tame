@@ -2,13 +2,6 @@ using System.Collections;
 using System.Linq;
 using UnityEngine;
 
-/// Minigame: žival (maèka) in igralec si podajata ENO žogo po vedno isti paraboli.
-/// - Ob vstopu: postavi rig na PlayerSpawn in ga obrni proti maèki.
-/// - Maèka NIKOLI ne zgreši: ob prihodu žoge jo "ujame" (snap na AnimalHold) in sproži odboj (AnimalReaction.PlayReaction()).
-/// - Igralec se žoge SAMO DOTAKNE (leva ali desna roka). Dotik med letom ANIMALPLAYER žogo takoj obrne NAZAJ
-///   po ISTI poti (obratni u), ne glede na mesto dotika.
-/// - Èe dotika ni, žoga pride do PlayerAnchor, "pade" na groundY in se respawna pri maèki.
-/// - Prvi met po startDelay sekundah.
 public class CatchBallMinigame : MonoBehaviour
 {
     [Header("Scene refs")]
@@ -17,39 +10,39 @@ public class CatchBallMinigame : MonoBehaviour
     public Transform playerSpawn;
 
     [Header("Anchors")]
-    public Transform playerAnchor; // fiksna toèka pri igralcu
-    public Transform animalAnchor; // toèka pri maèki, kamor prileti žoga
-    public Transform animalHold;   // toèka držanja žoge pri maèki
+    public Transform playerAnchor; 
+    public Transform animalAnchor; 
+    public Transform animalHold;   
 
     [Header("Animal")]
     public Animator animalAnimator;
-    public AnimalReaction animalReaction;            // èe je nastavljeno, klièemo PlayReaction()
-    public string animTriggerOnHit = "PlayReaction"; // fallback trigger, èe ni AnimalReaction
+    public AnimalReaction animalReaction;            
+    public string animTriggerOnHit = "PlayReaction"; 
 
     [Header("Ball")]
-    public GameObject ballPrefab;  // prefab žoge (Rigidbody NI potreben)
+    public GameObject ballPrefab;  
 
     [Header("Arc tuning")]
-    public float timeToPlayer = 1.0f;  // flight time ANIMALPLAYER
-    public float timeToAnimal = 1.0f;  // (neuporabljeno pri "same path", pusti za rezervo)
-    public float arcHeight = 0.6f;   // višina parabole
+    public float timeToPlayer = 1.0f;  
+    public float timeToAnimal = 1.0f;  
+    public float arcHeight = 0.6f;  
 
     [Header("Hands (for tap)")]
-    public OVRHand leftHand;           // ***povleci OVRHand komponenti z Left/RightHandAnchor!***
+    public OVRHand leftHand;          
     public OVRHand rightHand;
-    public bool requireHighConfidence = true;  // èe je Low, ignoriramo dotik
-    public float touchRadius = 0.10f;          // 10 cm okno dotika
+    public bool requireHighConfidence = true;  
+    public float touchRadius = 0.10f;          
 
     [Header("Fail & respawn")]
-    public float groundY = 0.0f;       // višina tal
-    public float dropSpeed = 2.0f;     // m/s
-    public float respawnDelay = 0.8f;  // po failu
+    public float groundY = 0.0f;       
+    public float dropSpeed = 2.0f;     
+    public float respawnDelay = 0.8f;  
 
     [Header("Flow")]
-    public float startDelay = 5.0f;    // prvi met po 5 s
+    public float startDelay = 5.0f;    
     public bool debugLog = false;
 
-    // --- internal ---
+    
     GameObject ball;
     Transform leftTip, rightTip;
 
@@ -72,17 +65,17 @@ public class CatchBallMinigame : MonoBehaviour
 
         PlaceRigAtSpawnFacingAnimal();
 
-        // poišèi index tip transformi (podpira OVRSkeleton in OVRCustomSkeleton)
+       
         leftTip = FindIndexTip(leftHand);
         rightTip = FindIndexTip(rightHand);
 
-        // ustvari edino žogo in jo postavi k maèki
+       
         ball = Instantiate(ballPrefab, animalHold.position, animalHold.rotation);
 
         StartCoroutine(GameLoop());
     }
 
-    // postavi rig na PlayerSpawn in ga obrni proti maèki
+    
     void PlaceRigAtSpawnFacingAnimal()
     {
         if (!rig || !centerEye || !playerSpawn) return;
@@ -111,11 +104,11 @@ public class CatchBallMinigame : MonoBehaviour
 
         while (true)
         {
-            // maèka "odboji" in poda
+            
             SnapBallTo(animalHold);
             PlayAnimalBounce();
 
-            // ANIMAL  PLAYER; dotik obrne NAZAJ po ISTI poti
+            
             yield return OutAndBackSamePathWithTap(
                 from: animalAnchor.position,
                 to: playerAnchor.position,
@@ -123,7 +116,7 @@ public class CatchBallMinigame : MonoBehaviour
                 height: arcHeight
             );
 
-            // po vrnitvi nazaj maèka ujame in lahko sledi kratka pavza
+            
             SnapBallTo(animalHold);
             PlayAnimalBounce();
 
@@ -133,12 +126,10 @@ public class CatchBallMinigame : MonoBehaviour
 
     void PlayAnimalBounce()
     {
-        if (animalReaction) animalReaction.PlayReaction();           // tvoj "Dodge" odboj
+        if (animalReaction) animalReaction.PlayReaction();          
         else if (animalAnimator) animalAnimator.SetTrigger(animTriggerOnHit);
     }
 
-    // Let ANIMALPLAYER; ob DOTIKU: invertira param u in se po isti paraboli vrne do ANIMAL.
-    // Èe dotika ni: pade na tla in respawn pri maèki.
     IEnumerator OutAndBackSamePathWithTap(Vector3 from, Vector3 to, float duration, float height)
     {
         float t = 0f;
@@ -151,7 +142,7 @@ public class CatchBallMinigame : MonoBehaviour
 
             if (IsPlayerTouching(pos))
             {
-                // vrni po ISTI krivulji (u -> 0) s podobno hitrostjo
+                
                 float uStart = u;
                 float backTime = uStart * duration;
                 float tb = 0f;
@@ -168,7 +159,7 @@ public class CatchBallMinigame : MonoBehaviour
             yield return null;
         }
 
-        // ni bilo dotika  padec in respawn
+        
         ball.transform.position = to;
         yield return DropToGround();
         yield return new WaitForSeconds(respawnDelay);
@@ -189,11 +180,11 @@ public class CatchBallMinigame : MonoBehaviour
         }
     }
 
-    // -- parabola: linearno Lerp + navpièni offset 4*h*u*(1-u)
+    
     Vector3 EvaluateParabola(Vector3 from, Vector3 to, float height, float u)
     {
         Vector3 linear = Vector3.Lerp(from, to, u);
-        float yOffset = 4f * height * u * (1f - u); // maxheight pri u=0.5
+        float yOffset = 4f * height * u * (1f - u); 
         return new Vector3(linear.x, linear.y + yOffset, linear.z);
     }
 
@@ -203,7 +194,7 @@ public class CatchBallMinigame : MonoBehaviour
         ball.transform.rotation = t.rotation;
     }
 
-    // -------- DOTIK (index tip -> pointer pose -> root roke) --------
+   
     bool IsPlayerTouching(Vector3 ballPos)
     {
         return HandTouch(leftHand, ref leftTip, ballPos) ||
@@ -215,7 +206,7 @@ public class CatchBallMinigame : MonoBehaviour
         if (!hand) return false;
         if (!hand.IsTracked) return false;
 
-        // mehkejši gate: èe je Low in je requireHighConfidence=true, prezri dotik
+        
         if (requireHighConfidence &&
             hand.HandConfidence == OVRHand.TrackingConfidence.Low)
             return false;
@@ -230,12 +221,12 @@ public class CatchBallMinigame : MonoBehaviour
         return d <= touchRadius;
     }
 
-    // podpira OVRSkeleton in OVRCustomSkeleton; išèe po imenu "index" + "tip"
+    
     Transform FindIndexTip(OVRHand hand)
     {
         if (!hand) return null;
 
-        // 1) OVRSkeleton
+        
         var skel = hand.GetComponent<OVRSkeleton>();
         if (skel && skel.Bones != null && skel.Bones.Count > 0)
         {
@@ -246,7 +237,7 @@ public class CatchBallMinigame : MonoBehaviour
             if (tip != null) return tip.Transform;
         }
 
-        // 2) OVRCustomSkeleton (pogosto v Building Blocks)
+        
         var custom = hand.GetComponent<OVRCustomSkeleton>();
         if (custom && custom.Bones != null && custom.Bones.Count > 0)
         {

@@ -1,113 +1,131 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Collider))]
-public class SceneSwitch : MonoBehaviour
+[DisallowMultipleComponent]
+public class SceneTouchSwitch : MonoBehaviour
 {
-    [Header("Target")]
-    public string targetScene = "Playground";
+    [Header("Target (leave empty to auto-toggle)")]
+    public string targetScene = "";
+    public string[] toggleScenes = { "Main", "Playground" };
 
-    [Header("Hands (assign from your Camera Rig)")]
-    public OVRHand leftHand;
-    public OVRHand rightHand;
+    [Header("Touch filter")]
+    public LayerMask allowedLayers = ~0;   
+    public string requiredTag = "";        
+    public float holdTime = 0.20f;
+    public float startDelay = 1.0f;
+    public float cooldown = 1.0f;
 
-    [Header("Touch detection")]
-    [Tooltip("Kolikšna bližina konice prsta/roke do colliderja šteje kot dotik (v metrih).")]
-    public float touchRadius = 0.05f;   // 5 cm
-    [Tooltip("Koliko èasa mora dotik trajati, da sproži preklop.")]
-    public float holdTime = 0.20f;      // sekunde
-    public float startDelay = 1.0f;     // ignoriraj prve X sekund po loadu
-    public float cooldown = 1.0f;       // zaklep po preklopu
-    public bool requireHighConfidence = true;
+    [Header("Lifecycle")]
+    public bool persistent = false;
 
     [Header("Debug")]
     public bool debugLog = false;
 
-    float sceneStartTime;
-    float lockUntil;
-    float leftTimer, rightTimer;
+    float sceneStartTime, lockUntil, timer;
+    readonly HashSet<Collider> touching = new();
+
     Collider col;
+    Rigidbody rb;
+
+    void Reset()
+    {
+        var c = GetComponent<Collider>();
+        if (c) c.isTrigger = true;
+    }
 
     void Awake()
     {
         col = GetComponent<Collider>();
+        col.isTrigger = true;
+
+        rb = GetComponent<Rigidbody>();
+        if (!rb) rb = gameObject.AddComponent<Rigidbody>();
+        rb.isKinematic = true;
+        rb.useGravity = false;
+
+        if (persistent)
+        {
+            var others = FindObjectsOfType<SceneTouchSwitch>(true).Where(o => o != this && o.persistent);
+            if (others.Any()) { Destroy(gameObject); return; }
+            DontDestroyOnLoad(gameObject);
+        }
+    }
+
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
         sceneStartTime = Time.time;
+        timer = 0f;
         lockUntil = 0f;
-        leftTimer = rightTimer = 0f;
+        touching.Clear();
+    }
+
+    void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
+
+    void OnSceneLoaded(Scene s, LoadSceneMode m)
+    {
+        sceneStartTime = Time.time;
+        timer = 0f;
+        lockUntil = 0f;
+        touching.Clear();
+        if (debugLog) Debug.Log($"[SceneTouchSwitch] Loaded {s.name}");
     }
 
     void Update()
     {
-        if (string.IsNullOrEmpty(targetScene)) return;
-        if (SceneManager.GetActiveScene().name == targetScene) return;         // ne preklopi v isto sceno
-        if (Time.time - sceneStartTime < startDelay) { ResetTimers(); return; }
-        if (Time.time < lockUntil) { ResetTimers(); return; }
+        string target = GetTargetSceneName();
+        if (string.IsNullOrEmpty(target)) return;
+        if (!Application.CanStreamedLevelBeLoaded(target)) { if (debugLog) Debug.LogError($"Scene '{target}' not in Build Settings"); return; }
+        if (SceneManager.GetActiveScene().name == target) return;
+        if (Time.time - sceneStartTime < startDelay || Time.time < lockUntil) { timer = 0f; return; }
 
-        bool lTouch = IsHandTouching(leftHand);
-        bool rTouch = IsHandTouching(rightHand);
+        bool isTouching = touching.Count > 0;
+        timer = isTouching ? timer + Time.deltaTime : 0f;
 
-        if (lTouch) leftTimer += Time.deltaTime; else leftTimer = 0f;
-        if (rTouch) rightTimer += Time.deltaTime; else rightTimer = 0f;
-
-        if (leftTimer >= holdTime || rightTimer >= holdTime)
+        if (isTouching && timer >= holdTime)
         {
-            if (debugLog) Debug.Log("[TouchToLoadScene] Touch confirmed  loading " + targetScene);
+            if (debugLog) Debug.Log($"[SceneTouchSwitch] Touch  load {target}");
             lockUntil = Time.time + cooldown;
-            SceneManager.LoadScene(targetScene, LoadSceneMode.Single);
+            SceneManager.LoadScene(target, LoadSceneMode.Single);
         }
     }
 
-    void ResetTimers() { leftTimer = rightTimer = 0f; }
-
-    bool IsHandTouching(OVRHand hand)
+    string GetTargetSceneName()
     {
-        if (!hand) return false;
-        if (!hand.IsTracked) return false;
-        if (requireHighConfidence &&
-            hand.HandConfidence != OVRHand.TrackingConfidence.High) return false;
+        if (!string.IsNullOrEmpty(targetScene)) return targetScene;
+        var current = SceneManager.GetActiveScene().name;
+        if (toggleScenes == null || toggleScenes.Length == 0) return null;
+        int idx = System.Array.IndexOf(toggleScenes, current);
+        return idx >= 0 ? toggleScenes[(idx + 1) % toggleScenes.Length] : toggleScenes[0];
+    }
 
-        Transform tip = GetIndexTipTransform(hand);
-        if (!tip)
+    bool Accept(Collider other)
+    {
+        if (!other) return false;
+        if (allowedLayers != (allowedLayers | (1 << other.gameObject.layer))) return false;
+        if (!string.IsNullOrEmpty(requiredTag) && !other.CompareTag(requiredTag)) return false;
+        return true;
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (Accept(other))
         {
-            // fallback: pointer pose ali kar root roke
-            tip = hand.PointerPose ? hand.PointerPose : hand.transform;
+            touching.Add(other);
+            if (debugLog) Debug.Log($"[SceneTouchSwitch] Enter: {other.name}");
         }
-
-        Vector3 p = tip.position;
-
-        // uporabi najbližjo toèko na colliderju za robustnost
-        Vector3 closest = col ? col.ClosestPoint(p) : transform.position;
-        float d = Vector3.Distance(p, closest);
-
-        if (debugLog) Debug.Log($"[TouchToLoadScene] {hand.name} d={d:F3}");
-        return d <= touchRadius;
     }
 
-    Transform GetIndexTipTransform(OVRHand hand)
+    void OnTriggerExit(Collider other)
     {
-        var skel = hand.GetComponent<OVRSkeleton>();
-        if (skel != null && skel.Bones != null && skel.Bones.Count > 0)
-        {
-            // Najprej poskusi toèen "IndexTip", èe tvoja verzija SDK spremeni enum, gremo po imenu.
-            var byName = skel.Bones.FirstOrDefault(b =>
-                b != null && b.Transform &&
-                b.Transform.name.ToLower().Contains("index") &&
-                b.Transform.name.ToLower().Contains("tip"));
-            if (byName != null) return byName.Transform;
-
-            // (Èe tvoja verzija podpira enum BoneId.Hand_IndexTip, ga lahko uporabiš namesto po imenu.)
-            // var exact = skel.Bones.FirstOrDefault(b => b.Id == OVRSkeleton.BoneId.Hand_IndexTip);
-            // if (exact != null) return exact.Transform;
-        }
-        return null;
+        if (touching.Remove(other) && debugLog)
+            Debug.Log($"[SceneTouchSwitch] Exit: {other.name}");
     }
 
-#if UNITY_EDITOR
-    void OnDrawGizmosSelected()
-    {
-        // Informativno: sfera okoli središèa objekta (dejanski test je najbližja toèka colliderja).
-        Gizmos.DrawWireSphere(transform.position, touchRadius);
-    }
-#endif
+   
+    void OnCollisionEnter(Collision c) { if (!col.isTrigger && Accept(c.collider)) touching.Add(c.collider); }
+    void OnCollisionExit(Collision c) { if (!col.isTrigger) touching.Remove(c.collider); }
 }
